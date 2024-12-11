@@ -10,9 +10,9 @@ public class Main  {
     public static void main(String[] args) {
         // List of available songs
         List<Songs> availableSongs = new ArrayList<>();
-        availableSongs.add(new Songs("Song A", "src/musics/Lady Gaga, Bruno Mars - Die With A Smile (Official Music Video).wav"));
+        availableSongs.add(new Songs("Song A", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav"));
         availableSongs.add(new Songs("Song B", "src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
-        availableSongs.add(new Songs("Song C", "path/to/songC.wav"));
+        availableSongs.add(new Songs("Song C", "src/musics/Paint The Town Blue (from the series Arcane League of Legends).wav"));
 
         // Playlist queue
         queue_music_playlist_system<Songs> playlist = new queue_music_playlist_system<>();
@@ -34,7 +34,8 @@ public class Main  {
                 case 1 -> {
                     System.out.println("Available Songs:");
                     for (int i = 0; i < availableSongs.size(); i++) {
-                        System.out.println((i + 1) + ". " + availableSongs.get(i).getName());
+                        String fileName = new java.io.File(availableSongs.get(i).getFilePath()).getName();
+                        System.out.println((i + 1) + ". " + availableSongs.get(i).getName() + " - " + fileName);
                     }
                 }
                 case 2 -> {
@@ -48,6 +49,7 @@ public class Main  {
                     }
                 }
                 case 3 -> playlist.display();
+
                 case 4 -> {
                     while (!playlist.isEmpty()) {
                         Songs song = playlist.dequeue();

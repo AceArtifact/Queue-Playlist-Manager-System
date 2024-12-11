@@ -55,7 +55,9 @@ public class queue_music_playlist_system<T> { // Generic class to handle any dat
         if (isEmpty()) {
             System.out.println("Queue is empty!");
         } else {
-            System.out.println("Queue: " + queue);
+            for (int i = 0; i < queue.size(); i++) {
+                System.out.println(queue.get(i));
+            }
         }
     }
     
