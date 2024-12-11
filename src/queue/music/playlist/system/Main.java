@@ -10,8 +10,8 @@ public class Main  {
     public static void main(String[] args) {
         // List of available songs
         List<Songs> availableSongs = new ArrayList<>();
-        availableSongs.add(new Songs("Song A", "path/to/songA.wav"));
-        availableSongs.add(new Songs("Song B", "path/to/songB.wav"));
+        availableSongs.add(new Songs("Song A", "src/musics/Lady Gaga, Bruno Mars - Die With A Smile (Official Music Video).wav"));
+        availableSongs.add(new Songs("Song B", "src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
         availableSongs.add(new Songs("Song C", "path/to/songC.wav"));
 
         // Playlist queue
@@ -77,6 +77,9 @@ public class Main  {
 
             // Play the audio clip
             clip.start();
+
+            // Wait until the audio clip finishes playing
+            clip.drain();  // This ensures the clip finishes playing before proceeding
 
             // Wait until the audio clip finishes playing
             while (clip.isRunning()) {
