@@ -182,12 +182,18 @@ public class AudioFunctions extends JPanel {
         timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (audioClip != null) {
+                if (audioClip != null && audioClip.isOpen()) {
+                    // Update the progress bar
                     int progress = (int) ((audioClip.getFramePosition() / (float) audioClip.getFrameLength()) * 100);
                     songProgressBar.setValue(progress);
-                    if (audioClip.getFramePosition() == audioClip.getFrameLength()) {
-                        dequeueSong(null);  // Automatically move to the next track when the current song ends
+
+                    // Check if the song has reached its end
+                    if (audioClip.getFramePosition() >= audioClip.getFrameLength() - 1) {
+                        cancelTimer(); // Stop the timer
+                        dequeueSong(null); // Automatically dequeue and play the next song
                     }
+                } else {
+                    cancelTimer(); // Stop the timer if the audioClip is not open
                 }
             }
         });
