@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public class queue_music_playlist_system<T> { // Generic class to handle any data type
-    private List<T> queue;
+    List<T> queue;
 
     // Constructor
     public queue_music_playlist_system() {
