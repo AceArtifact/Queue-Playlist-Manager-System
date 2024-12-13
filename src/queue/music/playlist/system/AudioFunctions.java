@@ -114,6 +114,8 @@ public class AudioFunctions extends JPanel {
 
     // Enqueue a song (called when a song is clicked in the list)
     private void enqueueSong(File song) {
+        // Reset the clip position before enqueuing the song
+        clipPosition = 0;  // Reset the position of the song
         playlist.enqueue(song);  // Add the song to the queue
         System.out.println("Enqueued: " + song.getName());
     }
