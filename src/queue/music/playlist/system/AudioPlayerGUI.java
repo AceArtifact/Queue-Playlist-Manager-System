@@ -19,12 +19,14 @@ public class AudioPlayerGUI extends JFrame{
     public JPanel songsListPanel, checkQueuePanel;
     public JTextArea songListArea, checkQueueArea;
 
-    private ArrayList<String> songs;
+    private ArrayList<File> songs;
 
     private CardLayout cardLayout;
     //private JSlider playbackSlider;
 
     private final AudioPlayer audioPlayer;
+
+    private JList<String> songJList; // Declare JList at class level
 
     // Playlist queue
     queue_music_playlist_system<Songs> playlist = new queue_music_playlist_system<>();
@@ -181,8 +183,6 @@ public class AudioPlayerGUI extends JFrame{
 
     }
 
-    private JList<String> songJList; // Declare JList at class level
-
     private void addContentPanel() {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
@@ -235,6 +235,7 @@ public class AudioPlayerGUI extends JFrame{
         checkQueueArea = new JTextArea();
         checkQueueArea.setEditable(false);
         checkQueueArea.setBounds(25, 120, 785, 435);
+        audioPlayer.showQueue(checkQueueArea);
 
         JScrollPane checkQScrollPane = new JScrollPane(checkQueueArea);
         checkQScrollPane.setBounds(25, 120, 785, 435);
@@ -261,6 +262,7 @@ public class AudioPlayerGUI extends JFrame{
     public void checkQButtonActionListener(ActionEvent e) {
             // 1. Change the CardLayout to show the panel where the song list is displayed
             cardLayout.show(contentPanel, "checkQueue");
+            playlist.display();
     }
     
     private void enqueueSelectedSong(String songName) {
@@ -278,6 +280,7 @@ public class AudioPlayerGUI extends JFrame{
         if (song != null) {
             playlist.enqueue(song);  // Add to playlist
             JOptionPane.showMessageDialog(this, song.getName() + " has been added to the queue!");
+            System.out.println("Enqueued: " + song.getName());
         }
     }
 

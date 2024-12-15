@@ -20,7 +20,7 @@ public class Main  {
 
 
 
-        
+        /*
         // List of available songs
         List<Songs> availableSongs = new ArrayList<>();
         availableSongs.add(new Songs("Stray Kids, Young Miko, Tom Morello - Come Play", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav"));
@@ -78,8 +78,9 @@ public class Main  {
                 default -> System.out.println("Invalid choice, please try again.");
             }
         }
-    }
+    }*/
 
+    /*
     // Method to play audio
     public static void playAudio(String filePath) {
         try {
@@ -105,6 +106,6 @@ public class Main  {
             }
         } catch (Exception e) {
             System.out.println("Error playing audio: " + e.getMessage());
-        }
+        }*/
     }
 }
