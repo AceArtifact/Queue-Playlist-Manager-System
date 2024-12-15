@@ -18,6 +18,7 @@ public class AudioFunctions extends JFrame{
     private JTextArea songListArea;
     private JSlider volumeSlider;
     private float volume = 1.0f;
+    private boolean isPaused = false;
 
     private Clip audioClip;
     private long clipPosition = 0;  // Keep track of clip position
@@ -104,7 +105,7 @@ public class AudioFunctions extends JFrame{
         JLabel threeDots = new JLabel(loadImage("src/images/3Dots.png"));
         threeDots.setBounds(1, 20, 150, 50);
 
-        leftPanel.add(songListButton = new RoundedButton("Song List"));
+        songListButton = new JButton("Song List");
         songListButton.setFont(new Font("Helvetica Nee", Font.BOLD, 14));
         songListButton.setBounds(1, 120, 125, 45); // x, y, width, height
         songListButton.setBorderPainted(false);
@@ -112,7 +113,7 @@ public class AudioFunctions extends JFrame{
         songListButton.setForeground(Color.decode("#b3b3b3"));
 
 
-        leftPanel.add(checkQueueButton = new RoundedButton("Check Queue"));
+        checkQueueButton = new JButton("Check Queue");
         checkQueueButton.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         checkQueueButton.setBounds(9, 190, 135, 45); // x, y, width, height
         checkQueueButton.setBorderPainted(false);
@@ -212,36 +213,50 @@ public class AudioFunctions extends JFrame{
         System.out.println("Enqueued: " + song.getName());
     }
 
-    // Play the media (next song from the queue)
     private void playMedia(ActionEvent e) {
         try {
-            // Stop any currently running audio clip
-            if (audioClip != null && audioClip.isRunning()) {
-                audioClip.stop();
-            }
-            // Get the next song from the queue
-            File songFile = playlist.peek();
-            if (songFile == null) {
-                System.out.println("No song in the queue to play!");
-                return;
-            }
+            if (audioClip != null && isPaused) {
+                // If the song is paused, resume from the saved position
+                audioClip.setFramePosition((int) clipPosition); // Set the position to where it was paused
+                audioClip.start(); // Start the audio again from that position
+                beginTimer(); // Continue the timer from the same position
+                isPaused = false;  // Song is no longer paused
+            } else {
+                // Stop any currently running audio clip
+                if (audioClip != null && audioClip.isRunning()) {
+                    audioClip.stop();
+                }
 
-            // Load the new song
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(songFile);
-            audioClip = AudioSystem.getClip();
-            audioClip.open(audioStream);
+                // Get the next song from the queue
+                File songFile = playlist.peek();
+                if (songFile == null) {
+                    System.out.println("No song in the queue to play!");
+                    return;
+                }
 
-            // Reset clip position and progress bar
-            clipPosition = 0;
-            audioClip.setFramePosition((int) clipPosition);
+                // Load the new song
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(songFile);
+                audioClip = AudioSystem.getClip();
+                audioClip.open(audioStream);
 
-            // Start the clip and the timer
-            audioClip.start();
-            beginTimer();
+                // Apply the volume setting after loading the clip
+                FloatControl volumeControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeControl.setValue(20f * (float) Math.log10(volume));  // Apply volume based on slider
 
-            // Update song label
-            if (songLabel != null) {
-                songLabel.setText(songFile.getName());
+                // Reset clip position and progress bar
+                clipPosition = 0;
+                audioClip.setFramePosition((int) clipPosition);
+
+                // Start the clip and the timer
+                audioClip.start();
+                beginTimer();
+
+                // Update song label
+                if (songLabel != null) {
+                    songLabel.setText(songFile.getName());
+                }
+
+                isPaused = false;  // Ensure the song is not paused at the start
             }
         } catch (Exception ex) {
             System.out.println("Error playing audio: " + ex.getMessage());
@@ -254,6 +269,7 @@ public class AudioFunctions extends JFrame{
             clipPosition = audioClip.getFramePosition();  // Save the current position
             audioClip.stop();  // Pause the clip
             cancelTimer();
+            isPaused = true;  // Set the state to paused
         }
     }
 
@@ -310,13 +326,12 @@ public class AudioFunctions extends JFrame{
     }
 
     private void changeVolume(ChangeEvent e) {
-        volume = volumeSlider.getValue() / 100f;
+        volume = volumeSlider.getValue() / 100.0f;  // Volume range from 0.0 to 1.0
         if (audioClip != null) {
             FloatControl volumeControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
-            volumeControl.setValue(20f * (float) Math.log10(volume));
+            volumeControl.setValue(20f * (float) Math.log10(volume));  // Set the volume based on the slider value
         }
     }
-
     // method for loading image
     private ImageIcon loadImage(String imagePath){
         try{
