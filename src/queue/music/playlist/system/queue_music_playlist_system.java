@@ -1,12 +1,13 @@
 
 package queue.music.playlist.system;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class queue_music_playlist_system<T> { // Generic class to handle any data type
-    private List<T> queue;
+    List<T> queue;
 
     // Constructor
     public queue_music_playlist_system() {
@@ -60,7 +61,9 @@ public class queue_music_playlist_system<T> { // Generic class to handle any dat
             }
         }
     }
-    
 
+    public boolean contains(File song) {
+        return queue.contains(song);
+    }
 }
 

@@ -1,13 +1,23 @@
 
 package queue.music.playlist.system;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import javax.swing.*;
 
 public class Main  {
     
     public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                new AudioPlayerGUI().setVisible(true);
+            }
+        });
+
+
+
+
+        /*
         // List of available songs
         List<Songs> availableSongs = new ArrayList<>();
         availableSongs.add(new Songs("Song A", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav"));
@@ -30,6 +40,7 @@ public class Main  {
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
+            //
             switch (choice) {
                 case 1 -> {
                     System.out.println("Available Songs:");
@@ -89,6 +100,6 @@ public class Main  {
             }
         } catch (Exception e) {
             System.out.println("Error playing audio: " + e.getMessage());
-        }
+        }*/
     }
 }
