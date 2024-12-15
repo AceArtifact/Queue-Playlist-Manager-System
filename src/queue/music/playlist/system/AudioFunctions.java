@@ -1,20 +1,23 @@
 package queue.music.playlist.system;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class AudioFunctions extends JPanel {
+public class AudioFunctions extends JFrame{
 
     private JLabel songLabel;
-    private JFrame frame;
     private JButton playButton, pauseButton, dequeueButton, checkQueueButton, songListButton;
-    private JProgressBar songProgressBar;
     private JTextArea songListArea;
+    private JSlider volumeSlider;
+    private float volume = 1.0f;
 
     private Clip audioClip;
     private long clipPosition = 0;  // Keep track of clip position
@@ -22,50 +25,40 @@ public class AudioFunctions extends JPanel {
     private int songNumber = 0;
     private Timer timer;
 
+    private JPanel leftPanel, bottomPanel, centerPanel;
+
+    private boolean isRunning;
+
     queue_music_playlist_system<File> playlist = new queue_music_playlist_system<>();  // Changed to handle File objects
 
     public AudioFunctions() {
-        frame = new JFrame();
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setTitle("Music Queue");
 
-        // Set BorderLayout as the layout manager
-        frame.setLayout(new BorderLayout());
+        // calls JFrame constructor to configure out gui and set the title header to "Music Player"
+        super("Music Player");
 
-        // Create a JPanel for the bottom (South)
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(Color.DARK_GRAY);
-        bottomPanel.setPreferredSize(new Dimension(frame.getWidth(), 75)); // Width x Height
-        bottomPanel.add(pauseButton = new RoundedButton("Pause"));
-        bottomPanel.add(playButton = new RoundedButton("Play"));
-        bottomPanel.add(dequeueButton = new RoundedButton("Dequeue"));
-        dequeueButton.setFont(new Font("Helvetica", Font.BOLD, 15));
-        pauseButton.setFont(new Font("Helvetica", Font.BOLD, 15));
-        playButton.setFont(new Font("Helvetica", Font.BOLD, 15));
+        // set the width and height
+        setSize(1080, 720);
 
-        // Create a JPanel for the left (West)
-        JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(Color.gray);
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS)); // Vertical layout for buttons
-        leftPanel.add(songListButton = new RoundedButton("Song List"));
-        leftPanel.add(checkQueueButton = new RoundedButton("Check Queue"));
-        leftPanel.setPreferredSize(new Dimension(150, frame.getHeight())); // Width x Height
+        // end process when app is closed
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Create a JPanel for the center (for displaying songs)
-        JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(Color.white);
-        centerPanel.setPreferredSize(new Dimension(frame.getWidth() - leftPanel.getWidth(), frame.getHeight() - bottomPanel.getHeight()));
-        songListArea = new JTextArea(15, 30);
-        songListArea.setEditable(false);
-        centerPanel.add(new JScrollPane(songListArea));
+        // launch the app at the center of the screen
+        setLocationRelativeTo(null);
 
-        // Add the panels to the BorderLayout
-        frame.add(bottomPanel, BorderLayout.SOUTH);
-        frame.add(leftPanel, BorderLayout.WEST);
-        frame.add(centerPanel, BorderLayout.CENTER);
+        // prevent the app from being resized
+        setResizable(false);
+
+        // set layout to null which allows us to control the (x, y) coordinates of our components
+        // and also set the height and width
+        setLayout(null);
+
+
+
+        songs = new ArrayList<>();
+        loadSongs();  // Load songs on start
+
+        addGuiComponent();
+
 
         // Button Actions
         playButton.addActionListener(this::playMedia);
@@ -73,6 +66,7 @@ public class AudioFunctions extends JPanel {
         dequeueButton.addActionListener(this::dequeueSong);
         songListButton.addActionListener(this::showSongList);
         checkQueueButton.addActionListener(this::checkQueue);
+        volumeSlider.addChangeListener(this::changeVolume);
 
         // Mouse Listener for song selection and enqueueing
         songListArea.addMouseListener(new MouseAdapter() {
@@ -87,10 +81,110 @@ public class AudioFunctions extends JPanel {
             }
         });
 
-        frame.setVisible(true);
+    }
 
-        songs = new ArrayList<>();
-        loadSongs();  // Load songs on start
+    private void addGuiComponent(){
+
+        addBottomPanel();
+
+        addLeftPanel();
+
+        addCenterPanel();
+
+    }
+
+    private void addLeftPanel(){
+        leftPanel = new JPanel();
+        leftPanel.setBackground(Color.decode("#121212"));
+        leftPanel.setBounds(0, 0, 225, 720);
+
+        // Set layout to null for free positioning
+        leftPanel.setLayout(null);
+
+        JLabel threeDots = new JLabel(loadImage("src/images/3Dots.png"));
+        threeDots.setBounds(1, 20, 150, 50);
+
+        leftPanel.add(songListButton = new RoundedButton("Song List"));
+        songListButton.setFont(new Font("Helvetica Nee", Font.BOLD, 14));
+        songListButton.setBounds(1, 120, 125, 45); // x, y, width, height
+        songListButton.setBorderPainted(false);
+        songListButton.setBackground(null);
+        songListButton.setForeground(Color.decode("#b3b3b3"));
+
+
+        leftPanel.add(checkQueueButton = new RoundedButton("Check Queue"));
+        checkQueueButton.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        checkQueueButton.setBounds(9, 190, 135, 45); // x, y, width, height
+        checkQueueButton.setBorderPainted(false);
+        checkQueueButton.setBackground(null);
+        checkQueueButton.setForeground(Color.decode("#b3b3b3"));
+
+        leftPanel.add(threeDots);
+        leftPanel.add(songListButton);
+        leftPanel.add(checkQueueButton);
+
+        add(leftPanel);
+
+    }
+
+    private void addBottomPanel(){
+
+        bottomPanel = new JPanel();
+        bottomPanel.setBackground(Color.decode("#212121"));
+        bottomPanel.setBounds(0,580,1080, 400);
+
+
+        bottomPanel.add(pauseButton = new RoundedButton("Pause"));
+        pauseButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        pauseButton.setBounds(375, 10,85,35);
+        pauseButton.setBorderPainted(false);
+        pauseButton.setBackground(null);
+        pauseButton.setForeground(Color.WHITE);
+
+        bottomPanel.add(playButton = new RoundedButton("Play"));
+        playButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        playButton.setBounds(475, 10,85,35);
+        playButton.setBorderPainted(false);
+        playButton.setBackground(null);
+        playButton.setForeground(Color.WHITE);
+
+        bottomPanel.add(dequeueButton = new RoundedButton("Dequeue"));
+        dequeueButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        dequeueButton.setBounds(575, 10,90,35);
+        dequeueButton.setBorderPainted(false);
+        dequeueButton.setBackground(null);
+        dequeueButton.setForeground(Color.WHITE);
+
+        bottomPanel.add(volumeSlider = new JSlider(0, 100, 50));
+
+        volumeSlider.setBackground(null);
+
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setPaintLabels(true);
+
+        bottomPanel.add(volumeSlider);
+
+        add(bottomPanel);
+
+    }
+
+    private void addCenterPanel() {
+
+        // Create a JPanel for the center (for displaying songs)
+        centerPanel = new JPanel();
+        centerPanel.setBackground(Color.white);
+        centerPanel.setBounds(225, 0, 855, 580);
+
+        centerPanel.setBackground(Color.DARK_GRAY);
+
+        songListArea = new JTextArea(15, 30);
+        songListArea.setEditable(false);
+        songListArea.setBounds(25, 120, 785, 435);
+        centerPanel.add(new JScrollPane(songListArea));
+
+
+
+        add(centerPanel);
     }
 
     // Load songs from the "music" directory
@@ -120,19 +214,35 @@ public class AudioFunctions extends JPanel {
 
     // Play the media (next song from the queue)
     private void playMedia(ActionEvent e) {
-        if (audioClip != null && audioClip.isRunning()) {
-            return;  // Already playing
-        }
         try {
-            File songFile = playlist.peek();  // Get the song at the front of the queue
-            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(songFile);
-            audioClip = javax.sound.sampled.AudioSystem.getClip();
-            audioClip.open(audioStream);
-            audioClip.setFramePosition((int) clipPosition); // Start from where it was paused
-            audioClip.start();
+            // Stop any currently running audio clip
+            if (audioClip != null && audioClip.isRunning()) {
+                audioClip.stop();
+            }
+            // Get the next song from the queue
+            File songFile = playlist.peek();
+            if (songFile == null) {
+                System.out.println("No song in the queue to play!");
+                return;
+            }
 
-            songLabel.setText(songFile.getName());
+            // Load the new song
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(songFile);
+            audioClip = AudioSystem.getClip();
+            audioClip.open(audioStream);
+
+            // Reset clip position and progress bar
+            clipPosition = 0;
+            audioClip.setFramePosition((int) clipPosition);
+
+            // Start the clip and the timer
+            audioClip.start();
             beginTimer();
+
+            // Update song label
+            if (songLabel != null) {
+                songLabel.setText(songFile.getName());
+            }
         } catch (Exception ex) {
             System.out.println("Error playing audio: " + ex.getMessage());
         }
@@ -149,19 +259,21 @@ public class AudioFunctions extends JPanel {
 
     // Dequeue the song in the front queue and play the next song
     private void dequeueSong(ActionEvent e) {
-        // Check if the queue is not empty
         if (!playlist.isEmpty()) {
-            // Stop the current audio clip if it's playing
+            // Stop the current audio if playing
             if (audioClip != null && audioClip.isRunning()) {
-                audioClip.stop();  // Stop the currently playing song
+                audioClip.stop();
             }
 
             // Remove the current song from the queue
-            File currentSong = playlist.dequeue();  // Dequeue the first song in the queue
+            File currentSong = playlist.dequeue();
             System.out.println("Dequeued and stopped: " + currentSong.getName());
 
-            // Automatically play the next song in the queue
-            playMedia(e);  // This will start playing the next song in the queue
+            // Reset the clip position and progress bar
+            clipPosition = 0;
+
+            // Automatically play the next song
+            playMedia(e);
         } else {
             System.out.println("Queue is empty! No more songs to play.");
         }
@@ -182,7 +294,6 @@ public class AudioFunctions extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (audioClip != null) {
                     int progress = (int) ((audioClip.getFramePosition() / (float) audioClip.getFrameLength()) * 100);
-                    songProgressBar.setValue(progress);
                     if (audioClip.getFramePosition() == audioClip.getFrameLength()) {
                         dequeueSong(null);  // Automatically move to the next track when the current song ends
                     }
@@ -197,6 +308,31 @@ public class AudioFunctions extends JPanel {
             timer.stop();
         }
     }
+
+    private void changeVolume(ChangeEvent e) {
+        volume = volumeSlider.getValue() / 100f;
+        if (audioClip != null) {
+            FloatControl volumeControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+            volumeControl.setValue(20f * (float) Math.log10(volume));
+        }
+    }
+
+    // method for loading image
+    private ImageIcon loadImage(String imagePath){
+        try{
+            // read the image file from the given path
+            BufferedImage image = ImageIO.read(new File(imagePath));
+
+            // returns an image icon so that our component can render the image
+            return new ImageIcon(image);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        // could not find resource
+        return null;
+    }
+
 }
 
 class RoundedButton extends JButton {
