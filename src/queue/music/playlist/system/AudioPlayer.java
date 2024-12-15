@@ -29,7 +29,6 @@ public class AudioPlayer {
         loadSongs();  // Load songs on start
     }
 
-
     // Display the song list in the center panel
     public void showSongList(JTextArea textArea) {
         textArea.setText("");  // Clear the previous list
@@ -121,7 +120,7 @@ public class AudioPlayer {
     }
 
     // Display the songs in the queue
-    public void checkQueue(JTextArea t) {
+    public void showQueue(JTextArea t) {
 
         StringBuilder queueDisplay = new StringBuilder();
         for (File song : playlist.queue) {

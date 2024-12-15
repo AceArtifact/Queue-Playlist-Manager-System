@@ -1,6 +1,7 @@
 package queue.music.playlist.system;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -17,12 +18,15 @@ public class AudioPlayerGUI extends JFrame{
     public JPanel songsListPanel, checkQueuePanel;
     public JTextArea songListArea, checkQueueArea;
 
-    private final ArrayList<String> songs;
+    private ArrayList<String> songs;
 
     private CardLayout cardLayout;
     //private JSlider playbackSlider;
 
     private final AudioPlayer audioPlayer;
+
+    // Playlist queue
+    queue_music_playlist_system<Songs> playlist = new queue_music_playlist_system<>();
 
 
     public AudioPlayerGUI() {
@@ -50,6 +54,8 @@ public class AudioPlayerGUI extends JFrame{
 
         // add the gui components
         addGuiComponents();
+
+        audioPlayer.enqueueSong(new File("src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
 
     }
 
@@ -88,7 +94,7 @@ public class AudioPlayerGUI extends JFrame{
         songListBtn.setBackground(null);
         songListBtn.setForeground(Color.decode("#b3b3b3"));
 
-        songListBtn.addActionListener(e -> songlistButtonActionListener(songListBtn));
+        songListBtn.addActionListener(this::songlistButtonActionListener);
 
         // Check Queue Button
         JButton checkQueueBtn = new JButton("Check Queue");
@@ -98,7 +104,7 @@ public class AudioPlayerGUI extends JFrame{
         checkQueueBtn.setBackground(null);
         checkQueueBtn.setForeground(Color.decode("#b3b3b3"));
 
-        checkQueueBtn.addActionListener(e -> checkQButtonActionListener(checkQueueBtn));
+        checkQueueBtn.addActionListener(this::checkQButtonActionListener);
 
         // Add buttons to the Left Panel
         leftPanel.add(threeDots);
@@ -180,6 +186,8 @@ public class AudioPlayerGUI extends JFrame{
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBounds(225, 0, 855, 580); // Set bounds to fit the frame
 
+
+        // ====== IGNORE THIS ======
         // // load record image
         // JLabel songsListBackground = new JLabel(loadImage("src/images/mainbackground.png"));
         //
@@ -198,38 +206,6 @@ public class AudioPlayerGUI extends JFrame{
         songListArea.setBounds(25,120 , 785, 435);
         // load the song list from the AudioPlayer class to this JTextArea
         audioPlayer.showSongList(songListArea);
-
-        // Add MouseListener to detect clicks on the song list
-        // Mouse Listener for song selection and enqueueing
-        songListArea.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int lineHeight = songListArea.getFontMetrics(songListArea.getFont()).getHeight();
-                int clickedLine = e.getY() / lineHeight;
-
-                // Debug log to check clickedLine and songs.size()
-                System.out.println("Clicked line: " + clickedLine);
-                System.out.println("Songs list size: " + songs.size());
-
-                // Check if the clicked line is within the valid range
-                if (clickedLine < 0 || clickedLine >= songs.size()) {
-                    // Throw an error if the line clicked is out of bounds
-                    throw new IllegalArgumentException("Clicked line is out of bounds. Invalid song index.");
-                }
-
-                // Convert the song path (String) to a File object
-                String selectedSongPath = songs.get(clickedLine);
-                File selectedSong = new File(selectedSongPath);
-
-                // Check if the file exists
-                if (!selectedSong.exists()) {
-                    throw new IllegalArgumentException("Selected song file does not exist: " + selectedSongPath);
-                }
-
-                // Enqueue the song if everything is valid
-                audioPlayer.enqueueSong(selectedSong);
-            }
-        });
 
         JScrollPane songsScrollPane = new JScrollPane(songListArea);
         songsScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
@@ -253,6 +229,8 @@ public class AudioPlayerGUI extends JFrame{
         checkQueueArea = new JTextArea(15, 30);
         checkQueueArea.setEditable(false);
         checkQueueArea.setBounds(25,120 , 785, 435);  // Set position and size of JTextArea
+        audioPlayer.showQueue(checkQueueArea);
+
         JScrollPane checkQScrollPane = new JScrollPane(checkQueueArea);
         checkQScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
 
@@ -260,9 +238,6 @@ public class AudioPlayerGUI extends JFrame{
         JLabel checkQueueLabel = new JLabel("Queue");
         checkQueueLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 30));
         checkQueueLabel.setBounds(25, 60, 150, 45);
-
-        // Update the JTextArea with the song list
-        audioPlayer.checkQueue(checkQueueArea);  // This updates the song list in the JTextArea
 
         checkQueuePanel.add(checkQueueLabel);   // Add Label to the panel
         checkQueuePanel.add(checkQScrollPane);  // Add JScrollPane to the panel
@@ -275,19 +250,13 @@ public class AudioPlayerGUI extends JFrame{
         add(contentPanel);
     }
 
-    public void songlistButtonActionListener(JButton button) {
-        button.addActionListener(e -> {
-            // 1. Change the CardLayout to show the panel where the song list is displayed
+    public void songlistButtonActionListener(ActionEvent e) {
             cardLayout.show(contentPanel, "songsList");
-
-        });
     }
 
-    public void checkQButtonActionListener(JButton button) {
-        button.addActionListener(e -> {
+    public void checkQButtonActionListener(ActionEvent e) {
             // 1. Change the CardLayout to show the panel where the song list is displayed
             cardLayout.show(contentPanel, "checkQueue");
-        });
     }
 
 
