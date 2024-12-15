@@ -1,6 +1,9 @@
 
 package queue.music.playlist.system;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import javax.swing.*;
 
 public class Main  {
@@ -17,12 +20,12 @@ public class Main  {
 
 
 
-        /*
+        
         // List of available songs
         List<Songs> availableSongs = new ArrayList<>();
-        availableSongs.add(new Songs("Song A", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav"));
-        availableSongs.add(new Songs("Song B", "src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
-        availableSongs.add(new Songs("Song C", "src/musics/Paint The Town Blue (from the series Arcane League of Legends).wav"));
+        availableSongs.add(new Songs("Stray Kids, Young Miko, Tom Morello - Come Play", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav"));
+        availableSongs.add(new Songs("Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia", "src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
+        availableSongs.add(new Songs("Paint The Town Blue", "src/musics/Paint The Town Blue (from the series Arcane League of Legends).wav"));
 
         // Playlist queue
         queue_music_playlist_system<Songs> playlist = new queue_music_playlist_system<>();
@@ -92,7 +95,9 @@ public class Main  {
             clip.start();
 
             // Wait until the audio clip finishes playing
-            clip.drain();  // This ensures the clip finishes playing before proceeding
+            while (!clip.isRunning()) {
+            Thread.sleep(10); // Small delay to wait for the clip to start
+            }
 
             // Wait until the audio clip finishes playing
             while (clip.isRunning()) {
@@ -100,6 +105,6 @@ public class Main  {
             }
         } catch (Exception e) {
             System.out.println("Error playing audio: " + e.getMessage());
-        }*/
+        }
     }
 }
