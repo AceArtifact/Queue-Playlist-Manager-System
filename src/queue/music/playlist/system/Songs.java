@@ -1,6 +1,4 @@
-
 package queue.music.playlist.system;
-
 
 public class Songs {
 
@@ -13,15 +11,11 @@ public class Songs {
     }
 
     public String getName() {
-
         return name;
-
     }
 
     public String getFilePath() {
-
         return filePath;
-
     }
 
 }

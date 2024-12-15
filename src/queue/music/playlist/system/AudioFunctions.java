@@ -53,13 +53,11 @@ public class AudioFunctions extends JFrame{
         // and also set the height and width
         setLayout(null);
 
-
-
         songs = new ArrayList<>();
         loadSongs();  // Load songs on start
 
+        // add the Gui Components to this frame
         addGuiComponent();
-
 
         // Button Actions
         playButton.addActionListener(this::playMedia);
@@ -369,7 +367,6 @@ public class AudioFunctions extends JFrame{
         // could not find resource
         return null;
     }
-
 }
 
 class RoundedButton extends JButton {
