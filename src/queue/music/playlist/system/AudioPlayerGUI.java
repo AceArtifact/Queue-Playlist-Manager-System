@@ -1,22 +1,36 @@
 package queue.music.playlist.system;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Hashtable;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class AudioPlayerGUI extends JFrame{
-    // color configurations
 
+    public JPanel leftPanel, bottomPanel, contentPanel;
 
-    private JPanel leftPanel, bottomPanel;
+    // Declare different panels for Songs List and Check Queue
+    public JPanel songsListPanel, checkQueuePanel;
+    public JTextArea songListArea, checkQueueArea;
 
-    private JSlider playbackSlider;
+    private ArrayList<String> songs;
+
+    private CardLayout cardLayout;
+    //private JSlider playbackSlider;
+
+    private final AudioPlayer audioPlayer;
+
+    // Playlist queue
+    queue_music_playlist_system<Songs> playlist = new queue_music_playlist_system<>();
+
 
     public AudioPlayerGUI() {
-        // calls JFrame constructor to configure out gui and set the title heaader to "Music Player"
+        // calls JFrame constructor to configure out gui and set the title header to "Music Player"
         super("Music Player");
 
         // set the width and height
@@ -35,20 +49,13 @@ public class AudioPlayerGUI extends JFrame{
         // and also set the height and width
         setLayout(null);
 
-        /* change the frame color
-        getContentPane().setBackground(FRAME_COLOR);
-        */
-
+        audioPlayer = new AudioPlayer();
+        songs = new ArrayList<>();
 
         // add the gui components
         addGuiComponents();
 
-        // ----- THIS
-        // load record image
-        JLabel backgroundImage = new JLabel(loadImage("src/images/mainbackground.png"));
-        // Set the size of the label to cover the entire frame
-        backgroundImage.setBounds(0, 0, 1280,720);
-        add(backgroundImage);
+        audioPlayer.enqueueSong(new File("src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav"));
 
     }
 
@@ -62,7 +69,8 @@ public class AudioPlayerGUI extends JFrame{
         // add the Left Part to this method
         addLeftButtons();
 
-
+        // add the songs list and check queue panel to this method
+        addContentPanel();
 
     }
 
@@ -80,11 +88,13 @@ public class AudioPlayerGUI extends JFrame{
 
         // Song List Button
         JButton songListBtn = new JButton("Songs List");
-        songListBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        songListBtn.setFont(new Font("Helvetica Nee", Font.BOLD, 14));
         songListBtn.setBounds(1, 120, 125, 45); // x, y, width, height
         songListBtn.setBorderPainted(false);
         songListBtn.setBackground(null);
         songListBtn.setForeground(Color.decode("#b3b3b3"));
+
+        songListBtn.addActionListener(this::songlistButtonActionListener);
 
         // Check Queue Button
         JButton checkQueueBtn = new JButton("Check Queue");
@@ -93,6 +103,8 @@ public class AudioPlayerGUI extends JFrame{
         checkQueueBtn.setBorderPainted(false);
         checkQueueBtn.setBackground(null);
         checkQueueBtn.setForeground(Color.decode("#b3b3b3"));
+
+        checkQueueBtn.addActionListener(this::checkQButtonActionListener);
 
         // Add buttons to the Left Panel
         leftPanel.add(threeDots);
@@ -119,6 +131,11 @@ public class AudioPlayerGUI extends JFrame{
         pauseBtn.setBackground(null);
         pauseBtn.setForeground(Color.WHITE);
 
+        pauseBtn.addActionListener(e -> {
+            // go to the previous song
+            audioPlayer.pauseAudio();
+        });
+
         // Play Button
         RoundedButton playBtn = new RoundedButton("Play");
         playBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
@@ -127,6 +144,11 @@ public class AudioPlayerGUI extends JFrame{
         playBtn.setBackground(null);
         playBtn.setForeground(Color.WHITE);
 
+        playBtn.addActionListener(e -> {
+            // go to the previous song
+            audioPlayer.playAudio();
+        });
+
         // Dequeue Button
         RoundedButton dequeueBtn = new RoundedButton("Dequeue");
         dequeueBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
@@ -134,6 +156,11 @@ public class AudioPlayerGUI extends JFrame{
         dequeueBtn.setBorderPainted(false);
         dequeueBtn.setBackground(null);
         dequeueBtn.setForeground(Color.WHITE);
+
+        dequeueBtn.addActionListener(e -> {
+            // go to the previous song
+            audioPlayer.dequeueSong();
+        });
 
         // playback slider
         JSlider playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
@@ -152,6 +179,86 @@ public class AudioPlayerGUI extends JFrame{
         add(bottomPanel);
 
     }
+
+    private void addContentPanel() {
+        // Initialize CardLayout and the content panel
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
+        contentPanel.setBounds(225, 0, 855, 580); // Set bounds to fit the frame
+
+
+        // ====== IGNORE THIS ======
+        // // load record image
+        // JLabel songsListBackground = new JLabel(loadImage("src/images/mainbackground.png"));
+        //
+        // // load record image
+        // JLabel checkqueueBackground = new JLabel(loadImage("src/images/mainbackground.png"));
+        //
+
+        /*
+               for Songs List Button
+         */
+        songsListPanel = new JPanel();
+        songsListPanel.setLayout(null);
+
+        songListArea = new JTextArea(15, 30);
+        songListArea.setEditable(false);
+        songListArea.setBounds(25,120 , 785, 435);
+        // load the song list from the AudioPlayer class to this JTextArea
+        audioPlayer.showSongList(songListArea);
+
+        JScrollPane songsScrollPane = new JScrollPane(songListArea);
+        songsScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
+
+        // label for Songs List
+        JLabel songListLabel = new JLabel("Musics");
+        songListLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 30));
+        songListLabel.setBounds(25, 60, 150, 45);
+
+        songsListPanel.add(songListLabel);      // Add Label to the panel
+        songsListPanel.add(songsScrollPane);    // Add JScrollPane to the panel
+        //songsListPanel.add(songsListBackground);
+
+
+        /*
+               for Check Queue Button
+         */
+        checkQueuePanel = new JPanel();
+        checkQueuePanel.setLayout(null);  // Disable layout manager to use absolute positioning
+
+        checkQueueArea = new JTextArea(15, 30);
+        checkQueueArea.setEditable(false);
+        checkQueueArea.setBounds(25,120 , 785, 435);  // Set position and size of JTextArea
+        audioPlayer.showQueue(checkQueueArea);
+
+        JScrollPane checkQScrollPane = new JScrollPane(checkQueueArea);
+        checkQScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
+
+        // label for Songs List
+        JLabel checkQueueLabel = new JLabel("Queue");
+        checkQueueLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 30));
+        checkQueueLabel.setBounds(25, 60, 150, 45);
+
+        checkQueuePanel.add(checkQueueLabel);   // Add Label to the panel
+        checkQueuePanel.add(checkQScrollPane);  // Add JScrollPane to the panel
+
+        // Add the panels to the content panel (CardLayout)
+        contentPanel.add(songsListPanel, "songsList");
+        contentPanel.add(checkQueuePanel, "checkQueue");
+
+        // Add the content panel to the JFrame
+        add(contentPanel);
+    }
+
+    public void songlistButtonActionListener(ActionEvent e) {
+            cardLayout.show(contentPanel, "songsList");
+    }
+
+    public void checkQButtonActionListener(ActionEvent e) {
+            // 1. Change the CardLayout to show the panel where the song list is displayed
+            cardLayout.show(contentPanel, "checkQueue");
+    }
+
 
     // method for loading image
     private ImageIcon loadImage(String imagePath){
@@ -172,9 +279,9 @@ public class AudioPlayerGUI extends JFrame{
 
 }
 
-
+// just a class for inheriting the properties of it to make the button round
 class RoundedButton extends JButton {
-    private int radius;
+    private final int radius;
 
     public RoundedButton(String text) {
         super(text);
@@ -218,24 +325,3 @@ class RoundedButton extends JButton {
     }
 }
 
-
-// Custom JPanel with transparency
-class TransparentPanel extends JPanel {
-    private float opacity = 0.5f; // Set transparency level (0.0f to 1.0f)
-
-    public TransparentPanel() {
-        setOpaque(false); // Ensure JPanel is not opaque
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g.create();
-        // Set the transparency using AlphaComposite
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-        // Set the background color
-        g2d.setColor(Color.decode("#212121")); // You can change the color here
-        g2d.fillRect(0, 0, getWidth(), getHeight()); // Fill the panel with the color
-        g2d.dispose(); // Dispose of the graphics object
-        super.paintComponent(g); // Ensure other components are painted properly
-    }
-}

@@ -29,14 +29,11 @@ public class AudioPlayer {
         loadSongs();  // Load songs on start
     }
 
-
     // Display the song list in the center panel
-    private void showSongList(ActionEvent e) {
-
-
-        songListArea.setText("");  // Clear the previous list
+    public void showSongList(JTextArea textArea) {
+        textArea.setText("");  // Clear the previous list
         for (int i = 0; i < songs.size(); i++) {
-            songListArea.append((i + 1) + ". " + songs.get(i).getName() + "\n");
+            textArea.append((i + 1) + ". " + songs.get(i).getName() + "\n");
         }
 
     }
@@ -48,7 +45,7 @@ public class AudioPlayer {
 
     /// ///////////////////////////////////////////////////
 
-    private void enqueueSong(File song) {
+    public void enqueueSong(File song) {
 
         if (playlist.contains(song)) {  // Check if the song is already in the queue
             System.out.println("Song already in queue: " + song.getName());
@@ -62,7 +59,7 @@ public class AudioPlayer {
     }
 
     // Dequeue the song in the front queue and play the next song
-    private void dequeueSong(ActionEvent e) {
+    public void dequeueSong() {
 
         // Check if the queue is not empty
         if (!playlist.isEmpty()) {
@@ -76,7 +73,7 @@ public class AudioPlayer {
             System.out.println("Dequeued and stopped: " + currentSong.getName());
 
             // Automatically play the next song in the queue
-            playMedia(e);  // This will start playing the next song in the queue
+            playAudio();  // This will start playing the next song in the queue
         } else {
             System.out.println("Queue is empty! No more songs to play.");
         }
@@ -87,9 +84,8 @@ public class AudioPlayer {
     //                                   //
     //    METHODS FOR PLAYING AUDIO      //
     //                                   //
-
     /// ///////////////////////////////////
-    private void playMedia(ActionEvent e) {
+    public void playAudio() {
 
         try {
             if (audioClip != null) {
@@ -113,7 +109,7 @@ public class AudioPlayer {
     }
 
     // Pause the audio
-    private void pauseMedia(ActionEvent e) {
+    public void pauseAudio() {
 
         if (audioClip != null && audioClip.isRunning()) {
             clipPosition = audioClip.getFramePosition();  // Save the current position
@@ -124,19 +120,19 @@ public class AudioPlayer {
     }
 
     // Display the songs in the queue
-    private void checkQueue(ActionEvent e) {
+    public void showQueue(JTextArea t) {
 
         StringBuilder queueDisplay = new StringBuilder();
         for (File song : playlist.queue) {
             queueDisplay.append(song.getName()).append("\n");
         }
 
-        songListArea.setEditable(false);  // Make the text area non-editable (non-clickable)
-        songListArea.setText(queueDisplay.toString());  // Show the queue in the center panel
+        t.setEditable(false);  // Make the text area non-editable (non-clickable)
+        t.setText(queueDisplay.toString());  // Show the queue in the center panel
 
     }
 
-    private void beginTimer() {
+    public void beginTimer() {
 
         timer = new Timer(100, new ActionListener() {
             @Override
@@ -149,7 +145,7 @@ public class AudioPlayer {
                     // Check if the song has reached its end
                     if (audioClip.getFramePosition() >= audioClip.getFrameLength() - 1) {
                         cancelTimer(); // Stop the timer
-                        dequeueSong(null); // Automatically dequeue and play the next song
+                        dequeueSong(); // Automatically dequeue and play the next song
                     }
                 } else {
                     cancelTimer(); // Stop the timer if the audioClip is not open
@@ -160,7 +156,7 @@ public class AudioPlayer {
 
     }
 
-    private void cancelTimer() {
+    public void cancelTimer() {
 
         if (timer != null) {
             timer.stop();
@@ -169,15 +165,16 @@ public class AudioPlayer {
     }
 
     // Load songs from the "music" directory
-    private void loadSongs() {
-
+    public void loadSongs() {
         File directory = new File("src/musics");
         File[] files = directory.listFiles((dir, name) -> name.endsWith(".wav"));
 
         if (files != null) {
             Arrays.sort(files);  // Sort the files alphabetically
             songs.addAll(Arrays.asList(files));
+            System.out.println("Loaded " + songs.size() + " songs.");
+        } else {
+            System.out.println("No .wav files found in directory.");
         }
-
     }
 }
