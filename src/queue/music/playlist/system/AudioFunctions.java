@@ -134,32 +134,33 @@ public class AudioFunctions extends JFrame{
         bottomPanel.setBackground(Color.decode("#212121"));
         bottomPanel.setBounds(0,580,1080, 400);
 
+        bottomPanel.setLayout(null);
 
         bottomPanel.add(pauseButton = new RoundedButton("Pause"));
         pauseButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        pauseButton.setBounds(375, 10,85,35);
+        pauseButton.setBounds(375, 20,85,35);
         pauseButton.setBorderPainted(false);
         pauseButton.setBackground(null);
         pauseButton.setForeground(Color.WHITE);
 
         bottomPanel.add(playButton = new RoundedButton("Play"));
         playButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        playButton.setBounds(475, 10,85,35);
+        playButton.setBounds(475, 20,85,35);
         playButton.setBorderPainted(false);
         playButton.setBackground(null);
         playButton.setForeground(Color.WHITE);
 
         bottomPanel.add(dequeueButton = new RoundedButton("Dequeue"));
         dequeueButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        dequeueButton.setBounds(575, 10,90,35);
+        dequeueButton.setBounds(575, 20,90,35);
         dequeueButton.setBorderPainted(false);
         dequeueButton.setBackground(null);
         dequeueButton.setForeground(Color.WHITE);
 
-        bottomPanel.add(volumeSlider = new JSlider(0, 100, 50));
-
+        // Set the bounds of the volumeSlider
+        volumeSlider = new JSlider(0, 100, 50);
+        volumeSlider.setBounds(800, 20, 200, 50);  // Adjust these values to your desired size and position
         volumeSlider.setBackground(null);
-
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
 
@@ -171,20 +172,41 @@ public class AudioFunctions extends JFrame{
 
     private void addCenterPanel() {
 
-        // Create a JPanel for the center (for displaying songs)
         centerPanel = new JPanel();
-        centerPanel.setBackground(Color.white);
-        centerPanel.setBounds(225, 0, 855, 580);
-
         centerPanel.setBackground(Color.DARK_GRAY);
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        songListArea = new JTextArea(15, 30);
+
+        centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Add a JLabel above the JTextArea
+        JLabel songListLabel = new JLabel("Song List");
+        songListLabel.setForeground(Color.WHITE);
+        songListLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        songListLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the label horizontally
+        centerPanel.add(Box.createVerticalStrut(20)); // Space from the top
+        centerPanel.add(songListLabel);               // Add the label
+        centerPanel.add(Box.createVerticalStrut(10)); // Space below the label
+
+        // Reduced JTextArea size
+        songListArea = new JTextArea(18, 45); // Adjust rows and columns
         songListArea.setEditable(false);
-        songListArea.setBounds(25, 120, 785, 435);
-        centerPanel.add(new JScrollPane(songListArea));
+        songListArea.setLineWrap(true);
+        songListArea.setWrapStyleWord(true);
 
+        // Wrap JTextArea inside JScrollPane
+        JScrollPane scrollPane = new JScrollPane(songListArea);
+        scrollPane.setMaximumSize(new Dimension(800, 500)); // Maximum width and height
+        scrollPane.setPreferredSize(new Dimension(800, 500)); // Preferred size
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the scroll pane
 
+        // Add components to centerPanel
+        centerPanel.add(scrollPane);
+        centerPanel.add(Box.createVerticalGlue());
 
+        // Remove left space by ensuring centerPanel is added properly
+        centerPanel.setBounds(190, 0, 900, 580); // Adjust bounds
         add(centerPanel);
     }
 
