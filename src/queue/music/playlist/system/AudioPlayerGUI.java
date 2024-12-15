@@ -3,6 +3,7 @@ package queue.music.playlist.system;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -180,75 +181,78 @@ public class AudioPlayerGUI extends JFrame{
 
     }
 
+    private JList<String> songJList; // Declare JList at class level
+
     private void addContentPanel() {
-        // Initialize CardLayout and the content panel
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
-        contentPanel.setBounds(225, 0, 855, 580); // Set bounds to fit the frame
+        contentPanel.setBounds(225, 0, 855, 580);
 
-
-        // ====== IGNORE THIS ======
-        // // load record image
-        // JLabel songsListBackground = new JLabel(loadImage("src/images/mainbackground.png"));
-        //
-        // // load record image
-        // JLabel checkqueueBackground = new JLabel(loadImage("src/images/mainbackground.png"));
-        //
-
-        /*
-               for Songs List Button
-         */
+        // ===== Songs List Panel =====
         songsListPanel = new JPanel();
         songsListPanel.setLayout(null);
 
-        songListArea = new JTextArea(15, 30);
-        songListArea.setEditable(false);
-        songListArea.setBounds(25,120 , 785, 435);
-        // load the song list from the AudioPlayer class to this JTextArea
-        audioPlayer.showSongList(songListArea);
+        // Create a JList for songs
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        songJList = new JList<>(listModel);  // Use DefaultListModel to manage song list
 
-        JScrollPane songsScrollPane = new JScrollPane(songListArea);
-        songsScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
+        // Load songs into the list model
+        listModel.addElement("Denzel Curry - Dynasties & Dystopia");
+        listModel.addElement("Stray Kids - Come Play");
+        listModel.addElement("Paint the Town Blue");
 
-        // label for Songs List
-        JLabel songListLabel = new JLabel("Musics");
+        // Add a MouseListener to detect clicks on list items
+        songJList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 1) {  // Single-click detection
+                    int index = songJList.locationToIndex(e.getPoint());  // Get clicked index
+                    if (index != -1) {
+                        String selectedSong = listModel.getElementAt(index);
+                        enqueueSelectedSong(selectedSong);
+                    }
+                }
+            }
+        });
+
+        // JScrollPane for JList
+        JScrollPane scrollPane = new JScrollPane(songJList);
+        scrollPane.setBounds(25, 120, 785, 435);
+
+        // Label for Songs List
+        JLabel songListLabel = new JLabel("Available Songs");
         songListLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 30));
-        songListLabel.setBounds(25, 60, 150, 45);
+        songListLabel.setBounds(25, 60, 300, 45);
 
-        songsListPanel.add(songListLabel);      // Add Label to the panel
-        songsListPanel.add(songsScrollPane);    // Add JScrollPane to the panel
-        //songsListPanel.add(songsListBackground);
+        // Add components to panel
+        songsListPanel.add(songListLabel);
+        songsListPanel.add(scrollPane);
 
-
-        /*
-               for Check Queue Button
-         */
+        // ===== Check Queue Panel =====
         checkQueuePanel = new JPanel();
-        checkQueuePanel.setLayout(null);  // Disable layout manager to use absolute positioning
+        checkQueuePanel.setLayout(null);
 
-        checkQueueArea = new JTextArea(15, 30);
+        checkQueueArea = new JTextArea();
         checkQueueArea.setEditable(false);
-        checkQueueArea.setBounds(25,120 , 785, 435);  // Set position and size of JTextArea
-        audioPlayer.showQueue(checkQueueArea);
+        checkQueueArea.setBounds(25, 120, 785, 435);
 
         JScrollPane checkQScrollPane = new JScrollPane(checkQueueArea);
-        checkQScrollPane.setBounds(25,120 , 785, 435);  // Set position and size of JScrollPane
+        checkQScrollPane.setBounds(25, 120, 785, 435);
 
-        // label for Songs List
         JLabel checkQueueLabel = new JLabel("Queue");
         checkQueueLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 30));
         checkQueueLabel.setBounds(25, 60, 150, 45);
 
-        checkQueuePanel.add(checkQueueLabel);   // Add Label to the panel
-        checkQueuePanel.add(checkQScrollPane);  // Add JScrollPane to the panel
+        checkQueuePanel.add(checkQueueLabel);
+        checkQueuePanel.add(checkQScrollPane);
 
-        // Add the panels to the content panel (CardLayout)
+        // Add panels to content panel
         contentPanel.add(songsListPanel, "songsList");
         contentPanel.add(checkQueuePanel, "checkQueue");
 
-        // Add the content panel to the JFrame
         add(contentPanel);
     }
+
 
     public void songlistButtonActionListener(ActionEvent e) {
             cardLayout.show(contentPanel, "songsList");
@@ -258,6 +262,25 @@ public class AudioPlayerGUI extends JFrame{
             // 1. Change the CardLayout to show the panel where the song list is displayed
             cardLayout.show(contentPanel, "checkQueue");
     }
+    
+    private void enqueueSelectedSong(String songName) {
+        Songs song = null;
+
+        // Map song names to their file paths
+        if (songName.contains("Dynasties")) {
+            song = new Songs("Dynasties & Dystopia", "src/musics/Denzel Curry, Gizzle, Bren Joy - Dynasties & Dystopia ｜ Arcane League of Legends ｜ Riot Games Music.wav");
+        } else if (songName.contains("Come Play")) {
+            song = new Songs("Come Play", "src/musics/Stray Kids, Young Miko, Tom Morello - ＂Come Play＂ (from Arcane Season 2) [Official Visualizer].wav");
+        } else if (songName.contains("Paint the Town Blue")) {
+            song = new Songs("Paint the Town Blue", "src/musics/Paint The Town Blue (from the series Arcane League of Legends).wav");
+        }
+
+        if (song != null) {
+            playlist.enqueue(song);  // Add to playlist
+            JOptionPane.showMessageDialog(this, song.getName() + " has been added to the queue!");
+        }
+    }
+
 
 
     // method for loading image

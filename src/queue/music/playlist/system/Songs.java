@@ -23,5 +23,10 @@ public class Songs {
         return filePath;
 
     }
+    
+    @Override
+    public String toString() {
+        return name;
+    }
 
 }

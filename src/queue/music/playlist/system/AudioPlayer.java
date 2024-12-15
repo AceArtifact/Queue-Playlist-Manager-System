@@ -16,7 +16,7 @@ public class AudioPlayer {
 
     private Clip audioClip;
     private long clipPosition = 0;  // Keep track of clip position
-    private ArrayList<File> songs;
+    private ArrayList<Songs> songs;
     private int songNumber = 0;
     private Timer timer;
 
@@ -79,6 +79,7 @@ public class AudioPlayer {
         }
 
     }
+    
 
     /// ///////////////////////////////////
     //                                   //
@@ -118,6 +119,8 @@ public class AudioPlayer {
         }
 
     }
+    
+
 
     // Display the songs in the queue
     public void showQueue(JTextArea t) {
@@ -165,16 +168,23 @@ public class AudioPlayer {
     }
 
     // Load songs from the "music" directory
-    public void loadSongs() {
-        File directory = new File("src/musics");
-        File[] files = directory.listFiles((dir, name) -> name.endsWith(".wav"));
+public void loadSongs() {
+    File directory = new File("src/musics");
+    File[] files = directory.listFiles((dir, name) -> name.endsWith(".wav"));
 
-        if (files != null) {
-            Arrays.sort(files);  // Sort the files alphabetically
-            songs.addAll(Arrays.asList(files));
-            System.out.println("Loaded " + songs.size() + " songs.");
-        } else {
-            System.out.println("No .wav files found in directory.");
+    if (files != null) {
+        Arrays.sort(files);  // Sort the files alphabetically
+        // Clear the existing songs list to avoid duplicates
+        songs.clear();
+        for (File file : files) {
+            // Create a new Songs object using the file name and absolute file path
+            Songs song = new Songs(file.getName(), file.getAbsolutePath());
+            songs.add(song);  // Add the Songs object to the list
         }
+        System.out.println("Loaded " + songs.size() + " songs.");
+    } else {
+        System.out.println("No .wav files found in directory.");
     }
+}
+    
 }
