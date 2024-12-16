@@ -30,7 +30,7 @@ public class AudioFunctions extends JFrame{
 
     private boolean isRunning;
 
-    queue_music_playlist_system<File> playlist = new queue_music_playlist_system<>();  // Changed to handle File objects
+    queue_music_playlist_system<File> playlist = new queue_music_playlist_system<>();
 
     public AudioFunctions() {
 
@@ -49,7 +49,6 @@ public class AudioFunctions extends JFrame{
         // prevent the app from being resized
         setResizable(false);
 
-        // set layout to null which allows us to control the (x, y) coordinates of our components
         // and also set the height and width
         setLayout(null);
 
@@ -167,7 +166,7 @@ public class AudioFunctions extends JFrame{
 
         // Set the bounds of the volumeSlider
         volumeSlider = new JSlider(0, 100, 50);
-        volumeSlider.setBounds(750, 20, 200, 50);  // Adjust these values to your desired size and position
+        volumeSlider.setBounds(750, 20, 200, 50);  
         volumeSlider.setBackground(null);
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
@@ -188,33 +187,31 @@ public class AudioFunctions extends JFrame{
 
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Add a JLabel above the JTextArea
+
         JLabel songListLabel = new JLabel("Song List");
         songListLabel.setForeground(Color.WHITE);
         songListLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        songListLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the label horizontally
-        centerPanel.add(Box.createVerticalStrut(20)); // Space from the top
-        centerPanel.add(songListLabel);               // Add the label
-        centerPanel.add(Box.createVerticalStrut(10)); // Space below the label
+        songListLabel.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        centerPanel.add(Box.createVerticalStrut(20)); 
+        centerPanel.add(songListLabel);               
+        centerPanel.add(Box.createVerticalStrut(10)); 
 
-        // Reduced JTextArea size
-        songListArea = new JTextArea(18, 45); // Adjust rows and columns
+        songListArea = new JTextArea(18, 45);
         songListArea.setEditable(false);
         songListArea.setLineWrap(true);
         songListArea.setWrapStyleWord(true);
 
         // Wrap JTextArea inside JScrollPane
         JScrollPane scrollPane = new JScrollPane(songListArea);
-        scrollPane.setMaximumSize(new Dimension(800, 500)); // Maximum width and height
-        scrollPane.setPreferredSize(new Dimension(800, 500)); // Preferred size
-        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the scroll pane
+        scrollPane.setMaximumSize(new Dimension(800, 500));
+        scrollPane.setPreferredSize(new Dimension(800, 500));
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT); 
 
         // Add components to centerPanel
         centerPanel.add(scrollPane);
         centerPanel.add(Box.createVerticalGlue());
 
-        // Remove left space by ensuring centerPanel is added properly
-        centerPanel.setBounds(190, 0, 900, 580); // Adjust bounds
+        centerPanel.setBounds(190, 0, 900, 580); 
         add(centerPanel);
     }
 
@@ -239,13 +236,14 @@ public class AudioFunctions extends JFrame{
 
     // Enqueue a song (called when a song is clicked in the list)
     private void enqueueSong(File song) {
-        playlist.enqueue(song);  // Add the song to the queue
+        playlist.enqueue(song); 
         System.out.println("Enqueued: " + song.getName());
     }
 
     private void playMedia(ActionEvent e) {
         try {
             if (audioClip != null && isPaused) {
+                
                 // If the song is paused, resume from the saved position
                 audioClip.setFramePosition((int) clipPosition); // Set the position to where it was paused
                 audioClip.start(); // Start the audio again from that position
@@ -273,7 +271,7 @@ public class AudioFunctions extends JFrame{
                 FloatControl volumeControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
                 volumeControl.setValue(20f * (float) Math.log10(volume));  // Apply volume based on slider
 
-                // Reset clip position and progress bar
+
                 clipPosition = 0;
                 audioClip.setFramePosition((int) clipPosition);
 
@@ -281,7 +279,7 @@ public class AudioFunctions extends JFrame{
                 audioClip.start();
                 beginTimer();
 
-                // Update song label
+
                 if (songLabel != null) {
                     songLabel.setText(songFile.getName());
                 }
@@ -293,7 +291,7 @@ public class AudioFunctions extends JFrame{
         }
     }
 
-    // Pause the audio
+
     private void pauseMedia(ActionEvent e) {
         if (audioClip != null && audioClip.isRunning()) {
             clipPosition = audioClip.getFramePosition();  // Save the current position
@@ -303,10 +301,10 @@ public class AudioFunctions extends JFrame{
         }
     }
 
-    // Dequeue the song in the front queue and play the next song
+
     private void dequeueSong(ActionEvent e) {
         if (!playlist.isEmpty()) {
-            // Stop the current audio if playing
+            
             if (audioClip != null && audioClip.isRunning()) {
                 audioClip.stop();
             }
@@ -315,11 +313,11 @@ public class AudioFunctions extends JFrame{
             File currentSong = playlist.dequeue();
             System.out.println("Dequeued and stopped: " + currentSong.getName());
 
-            // Reset the clip position and progress bar
+            // Reset songs
             clipPosition = 0;
 
-            // Automatically play the next song
             playMedia(e);
+            
         } else {
             System.out.println("Queue is empty! No more songs to play.");
         }
@@ -343,7 +341,6 @@ public class AudioFunctions extends JFrame{
         }
     }
 
-    // Display the songs in the queue
     private void checkQueue(ActionEvent e) {
         StringBuilder queueDisplay = new StringBuilder();
         for (File song : playlist.queue) {
@@ -377,7 +374,7 @@ public class AudioFunctions extends JFrame{
         volume = volumeSlider.getValue() / 100.0f;  // Volume range from 0.0 to 1.0
         if (audioClip != null) {
             FloatControl volumeControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
-            volumeControl.setValue(20f * (float) Math.log10(volume));  // Set the volume based on the slider value
+            volumeControl.setValue(20f * (float) Math.log10(volume)); 
         }
     }
     // method for loading image
@@ -392,7 +389,7 @@ public class AudioFunctions extends JFrame{
             e.printStackTrace();
         }
 
-        // could not find resource
+        
         return null;
     }
 
@@ -403,7 +400,7 @@ class RoundedButton extends JButton {
 
     public RoundedButton(String text) {
         super(text);
-        this.radius = 15;  // You can change this value to adjust the roundness
+        this.radius = 15; 
         setOpaque(false);
         setContentAreaFilled(false);
     }
