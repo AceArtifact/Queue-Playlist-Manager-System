@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class AudioFunctions extends JFrame{
 
     private JLabel songLabel;
-    private JButton playButton, pauseButton, dequeueButton, checkQueueButton, songListButton;
+    private JButton playButton, pauseButton, dequeueButton, checkQueueButton, songListButton, clearPlaylistButton;
     private JTextArea songListArea;
     private JSlider volumeSlider;
     private float volume = 1.0f;
@@ -68,6 +68,7 @@ public class AudioFunctions extends JFrame{
         songListButton.addActionListener(this::showSongList);
         checkQueueButton.addActionListener(this::checkQueue);
         volumeSlider.addChangeListener(this::changeVolume);
+        clearPlaylistButton.addActionListener(this::clearPlaylist);
 
         // Mouse Listener for song selection and enqueueing
         songListArea.addMouseListener(new MouseAdapter() {
@@ -138,28 +139,35 @@ public class AudioFunctions extends JFrame{
 
         bottomPanel.add(pauseButton = new RoundedButton("Pause"));
         pauseButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        pauseButton.setBounds(375, 20,85,35);
+        pauseButton.setBounds(325, 20,85,35);
         pauseButton.setBorderPainted(false);
         pauseButton.setBackground(null);
         pauseButton.setForeground(Color.WHITE);
 
         bottomPanel.add(playButton = new RoundedButton("Play"));
         playButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        playButton.setBounds(475, 20,85,35);
+        playButton.setBounds(425, 20,85,35);
         playButton.setBorderPainted(false);
         playButton.setBackground(null);
         playButton.setForeground(Color.WHITE);
 
         bottomPanel.add(dequeueButton = new RoundedButton("Dequeue"));
         dequeueButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-        dequeueButton.setBounds(575, 20,90,35);
+        dequeueButton.setBounds(525, 20,90,35);
         dequeueButton.setBorderPainted(false);
         dequeueButton.setBackground(null);
         dequeueButton.setForeground(Color.WHITE);
+        
+        bottomPanel.add(clearPlaylistButton = new RoundedButton("Clear"));
+        clearPlaylistButton.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        clearPlaylistButton.setBounds(625, 20,90,35);
+        clearPlaylistButton.setBorderPainted(false);
+        clearPlaylistButton.setBackground(null);
+        clearPlaylistButton.setForeground(Color.WHITE);
 
         // Set the bounds of the volumeSlider
         volumeSlider = new JSlider(0, 100, 50);
-        volumeSlider.setBounds(800, 20, 200, 50);  // Adjust these values to your desired size and position
+        volumeSlider.setBounds(750, 20, 200, 50);  // Adjust these values to your desired size and position
         volumeSlider.setBackground(null);
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
@@ -314,6 +322,24 @@ public class AudioFunctions extends JFrame{
             playMedia(e);
         } else {
             System.out.println("Queue is empty! No more songs to play.");
+        }
+    }
+    
+        private void clearPlaylist(ActionEvent e) {
+        if (!playlist.isEmpty()) {
+            if (audioClip != null && audioClip.isRunning()) {
+                audioClip.stop();
+            }
+
+            // Remove the current song from the queue
+            playlist.clearQueue();
+            System.out.println("Removed all Songs");
+
+            // Reset the clip position and progress bar
+            clipPosition = 0;
+
+        } else {
+            System.out.println("Queue is already empty!");
         }
     }
 
